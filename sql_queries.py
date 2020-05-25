@@ -19,7 +19,7 @@ time_table_drop = "drop table if exists times"
 
 staging_events_table_create= ("""
     create table if not exists staging_events (
-        staging_event_id identity(0, 1) primary key,
+        staging_song_id bigint identity(0, 1) primary key,
         artist varchar,
         auth varchar,
         first_name varchar not null,
@@ -43,7 +43,7 @@ staging_events_table_create= ("""
 
 staging_songs_table_create = ("""
     create table if not exists staging_songs (
-        staging_song_id identity(0, 1) primary key,
+        staging_song_id bigint identity(0, 1) primary key,
         num_songs int, 
         artist_id varchar not null,
         artist_latitude float, 
@@ -59,7 +59,7 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
     create table if not exists songplays (
-        songplay_id identity(0, 1) primary key
+        songplay_id bigint identity(0, 1) primary key,
         start_time int,
         user_id int not null, 
         level varchar not null, 
@@ -116,10 +116,21 @@ time_table_create = ("""
 # STAGING TABLES
 
 staging_events_copy = ("""
-""").format()
+    copy staging_events from {}
+    iam_role {} format as json {}
+""").format(
+    config.get("S3", "LOG_DATA"),
+    config.get("IAM_ROLE", "ARN"),
+    config.get("S3", "LOG_JSONPATH")
+)
 
 staging_songs_copy = ("""
-""").format()
+    copy staging_songs from {}
+    iam_role {} format as json 'auto'
+""").format(
+    config.get("S3", "SONG_DATA"),
+    config.get("IAM_ROLE", "ARN")
+)
 
 # FINAL TABLES
 

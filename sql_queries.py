@@ -22,12 +22,12 @@ staging_events_table_create= ("""
         staging_song_id bigint identity(0, 1) primary key,
         artist varchar,
         auth varchar,
-        first_name varchar not null,
+        first_name varchar,
         gender varchar,
         item_in_session int not null,
-        last_name varchar not null,
+        last_name varchar,
         length float,
-        level varchar not null,
+        level varchar,
         location varchar,
         method varchar,
         page varchar,
@@ -35,9 +35,9 @@ staging_events_table_create= ("""
         session_id int not null,
         song varchar,
         status int, 
-        ts int,
+        ts bigint not null,
         user_agent varchar,
-        use_id int not null
+        user_id int
     )
 """)
 
@@ -46,7 +46,7 @@ staging_songs_table_create = ("""
         staging_song_id bigint identity(0, 1) primary key,
         num_songs int, 
         artist_id varchar not null,
-        artist_latitude float, 
+        artist_lattitude float, 
         artist_longitude float, 
         artist_location varchar,
         artist_name varchar,
@@ -60,9 +60,9 @@ staging_songs_table_create = ("""
 songplay_table_create = ("""
     create table if not exists songplays (
         songplay_id bigint identity(0, 1) primary key,
-        start_time int,
+        start_time timestamp not null,
         user_id int not null, 
-        level varchar not null, 
+        level varchar, 
         song_id varchar not null, 
         artist_id varchar not null, 
         session_id int not null, 
@@ -103,7 +103,7 @@ artist_table_create = ("""
 
 time_table_create = ("""
     create table if not exists times (
-        start_time int primary key not null, 
+        start_time timestamp primary key not null, 
         hour int not null, 
         day int not null, 
         week int not null, 
@@ -134,19 +134,103 @@ staging_songs_copy = ("""
 
 # FINAL TABLES
 
+#  there is no from_unixtime() in redshift (https://stackoverflow.com/questions/39815425/how-to-convert-epoch-to-datetime-redshift)
+
 songplay_table_insert = ("""
+    insert into songplays (
+        start_time,
+        user_id, 
+        level, 
+        song_id, 
+        artist_id, 
+        session_id, 
+        location, 
+        user_agent
+    )
+    select
+        timestamp 'epoch' + se.ts / 1000 * interval '1 second' as start_time, 
+        se.user_id,
+        se.level,
+        ss.song_id,
+        ss.artist_id,
+        se.session_id,
+        se.location,
+        se.user_agent
+    from staging_events as se
+    join staging_songs ss on se.song = ss.title and se.artist = ss.artist_name
+    where se.page = 'NextSong'
 """)
 
 user_table_insert = ("""
+    insert into users (
+        user_id, 
+        first_name, 
+        last_name, 
+        gender, 
+        level
+        )
+    select 
+        se.user_id,
+        se.first_name,
+        se.last_name,
+        se.gender,
+        se.level
+    from staging_events as se where se.page = 'NextSong'    
 """)
 
 song_table_insert = ("""
+    insert into songs (
+        song_id, 
+        title, 
+        artist_id, 
+        year, 
+        duration
+    )
+    select 
+        ss.song_id,
+        ss.title,
+        ss.artist_id,
+        ss.year,
+        ss.duration
+   from staging_songs as ss
 """)
 
 artist_table_insert = ("""
+    insert into artists (
+        artist_id, 
+        name, 
+        location, 
+        lattitude, 
+        longitude
+        )
+    select 
+        ss.artist_id,
+        ss.artist_name as name,
+        ss.artist_location as location,
+        ss.artist_lattitude as lattitude,
+        ss.artist_longitude as longitude
+    from staging_songs as ss        
 """)
 
 time_table_insert = ("""
+    insert into times (
+        start_time, 
+        hour, 
+        day, 
+        week, 
+        month, 
+        year, 
+        weekday
+        )
+    select 
+        timestamp 'epoch' + se.ts / 1000 * interval '1 second' as start_time, 
+        extract(hour from start_time) as hour,
+        extract(day from start_time) as day,
+        extract(week from start_time) as week,
+        extract(month from start_time) as month,
+        extract(year from start_time) as year,
+        extract(week from start_time) as weekday
+    from staging_events as se where se.page = 'NextSong'        
 """)
 
 # QUERY LISTS

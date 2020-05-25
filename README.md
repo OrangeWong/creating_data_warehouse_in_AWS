@@ -23,22 +23,22 @@ The database contains the following tables:
 # To Fill the credentials
 We need to fill the credentials into dwh.cfg with the following format to get access to the AWS Redshift database:
 
-[CLUSTER]
-HOST=<aws_host>
-DB_NAME=<your_db_name>
-DB_USER=<your_db_user_name>
-DB_PASSWORD=<your_db_passowrd>
-DB_PORT=<your_db_port_to_connect>
+[CLUSTER]<br />
+HOST=your_aws_host<br />
+DB_NAME=your_db_name<br />
+DB_USER=your_db_user_name<br />
+DB_PASSWORD=your_db_passowrd<br />
+DB_PORT=your_db_port_to_connect<br />
 
-[IAM_ROLE]
-ARN='<your_iam_role_in_aws>'
+[IAM_ROLE]<br />
+ARN='your_iam_role_in_aws'<br />
 
-[S3]
-LOG_DATA='s3://udacity-dend/log_data'
-LOG_JSONPATH='s3://udacity-dend/log_json_path.json'
-SONG_DATA='s3://udacity-dend/song_data'
+[S3]<br />
+LOG_DATA='s3://udacity-dend/log_data'<br />
+LOG_JSONPATH='s3://udacity-dend/log_json_path.json'<br />
+SONG_DATA='s3://udacity-dend/song_data'<br />
 
-# Hoe to Run
+# How to Run
 To create and insert data into data warehouse in Redshift, run the following commands:
 - python create_tables.py
 - python etl.py

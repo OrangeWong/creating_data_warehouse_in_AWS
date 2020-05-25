@@ -19,12 +19,12 @@ time_table_drop = "drop table if exists times"
 
 staging_events_table_create= ("""
     create table if not exists staging_events (
-        staging_song_id bigint identity(0, 1) primary key,
+        staging_song_id bigint identity(0, 1),
         artist varchar,
         auth varchar,
         first_name varchar,
         gender varchar,
-        item_in_session int not null,
+        item_in_session int,
         last_name varchar,
         length float,
         level varchar,
@@ -32,10 +32,10 @@ staging_events_table_create= ("""
         method varchar,
         page varchar,
         registration float,
-        session_id int not null,
+        session_id int,
         song varchar,
         status int, 
-        ts bigint not null,
+        ts bigint,
         user_agent varchar,
         user_id int
     )
@@ -43,16 +43,16 @@ staging_events_table_create= ("""
 
 staging_songs_table_create = ("""
     create table if not exists staging_songs (
-        staging_song_id bigint identity(0, 1) primary key,
+        staging_song_id bigint identity(0, 1),
         num_songs int, 
-        artist_id varchar not null,
+        artist_id varchar,
         artist_lattitude float, 
         artist_longitude float, 
         artist_location varchar,
         artist_name varchar,
-        song_id varchar not null, 
-        title varchar not null,
-        duration float not null, 
+        song_id varchar, 
+        title varchar,
+        duration float, 
         year int
     )
 """)
@@ -73,7 +73,7 @@ songplay_table_create = ("""
 
 user_table_create = ("""
     create table if not exists users (
-        user_id int primary key not null, 
+        user_id int primary key, 
         first_name varchar not null, 
         last_name varchar not null, 
         gender varchar, 
@@ -83,7 +83,7 @@ user_table_create = ("""
 
 song_table_create = ("""
     create table if not exists songs (
-        song_id varchar primary key not null, 
+        song_id varchar primary key, 
         title varchar not null, 
         artist_id varchar not null, 
         year int, 
@@ -93,7 +93,7 @@ song_table_create = ("""
 
 artist_table_create = ("""
     create table if not exists artists (
-        artist_id varchar primary key not null, 
+        artist_id varchar primary key, 
         name varchar, 
         location varchar, 
         lattitude float, 
@@ -103,7 +103,7 @@ artist_table_create = ("""
 
 time_table_create = ("""
     create table if not exists times (
-        start_time timestamp primary key not null, 
+        start_time timestamp primary key, 
         hour int not null, 
         day int not null, 
         week int not null, 
@@ -169,7 +169,7 @@ user_table_insert = ("""
         gender, 
         level
         )
-    select 
+    select distinct
         se.user_id,
         se.first_name,
         se.last_name,

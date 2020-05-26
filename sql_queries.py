@@ -147,7 +147,7 @@ songplay_table_insert = ("""
         location, 
         user_agent
     )
-    select
+    select distinct
         timestamp 'epoch' + se.ts / 1000 * interval '1 second' as start_time, 
         se.user_id,
         se.level,
@@ -186,7 +186,7 @@ song_table_insert = ("""
         year, 
         duration
     )
-    select 
+    select distinct
         ss.song_id,
         ss.title,
         ss.artist_id,
@@ -203,7 +203,7 @@ artist_table_insert = ("""
         lattitude, 
         longitude
         )
-    select 
+    select distinct 
         ss.artist_id,
         ss.artist_name as name,
         ss.artist_location as location,
@@ -222,7 +222,7 @@ time_table_insert = ("""
         year, 
         weekday
         )
-    select 
+    select distinct 
         timestamp 'epoch' + se.ts / 1000 * interval '1 second' as start_time, 
         extract(hour from start_time) as hour,
         extract(day from start_time) as day,
